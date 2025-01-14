@@ -44,9 +44,14 @@ namespace AdoNetCore.Repositories
             return departamentos;
         }
 
-        public async Task<List<string>> GetEmpleadosAsync()
+        public async Task<List<string>> GetEmpleadosAsync(string nombreDepartamento)
         {
-            string sql = "SELECT DISTINCT APELLIDO FROM EMP";
+            string sql = "SELECT DISTINCT EMP.APELLIDO FROM EMP" +
+                "INNER JOIN DEPT ON EMP.DEPT_NO = DEPT.DEPT_NO WHERE DEPT.DNOMBRE='" + nombreDepartamento + "'";
+            
+            SqlParameter pamDepartamento = new SqlParameter("@departamento", nombreDepartamento);
+            this.com.Parameters.Add(pamDepartamento);
+
             this.com.Connection = this.cn;
             this.com.CommandType = CommandType.Text;
             this.com.CommandText = sql;
@@ -57,12 +62,13 @@ namespace AdoNetCore.Repositories
             List<string> empleados = new List<string>();
             while (await this.reader.ReadAsync())
             {
-                string nombre = this.reader["APELLIDO"].ToString();
-                empleados.Add(nombre);
+                string apellido = this.reader["APELLIDO"].ToString();
+                empleados.Add(apellido);
             }
 
             await this.reader.CloseAsync();
             await this.cn.CloseAsync();
+            this.com.Parameters.Clear();
 
             return empleados;
         }

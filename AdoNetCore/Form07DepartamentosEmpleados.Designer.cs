@@ -51,6 +51,7 @@
             lstDepartamentos.Name = "lstDepartamentos";
             lstDepartamentos.Size = new Size(134, 124);
             lstDepartamentos.TabIndex = 1;
+            lstDepartamentos.SelectedIndexChanged += lstDepartamentos_SelectedIndexChanged;
             // 
             // label2
             // 

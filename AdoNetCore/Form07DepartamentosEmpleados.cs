@@ -42,7 +42,7 @@ namespace AdoNetCore
         }
         private void lstDepartamentos_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.LoadEmpleados()
+            this.LoadEmpleados();
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)

@@ -27,10 +27,10 @@ namespace AdoNetCore
             foreach (string hospital in hospitales)
             {
                 this.lstHospitales.Items.Add(hospital);
-            }
+            } 
         }
 
-        private void btnInsertar_Click(object sender, EventArgs e)
+        private async void btnInsertar_Click(object sender, EventArgs e)
         {
             int id = int.Parse(this.txtId.Text);
             string nombre = this.txtNombre.Text;
@@ -41,7 +41,7 @@ namespace AdoNetCore
             this.LoadHospitales();
         }
 
-        private void btnModificar_Click(object sender, EventArgs e)
+        private async void btnModificar_Click(object sender, EventArgs e)
         {
             int id = int.Parse(this.txtId.Text);
             string nombre = this.txtNombre.Text;

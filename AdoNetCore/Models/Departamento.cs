@@ -9,7 +9,7 @@ namespace AdoNetCore.Models
     public class Departamento
     {
         public int IdDepartamento { get; set; }
-        public int Nombre { get; set; }
-        public int Localidad { get; set; }
+        public string Nombre { get; set; }
+        public string Localidad { get; set; }
     }
 }

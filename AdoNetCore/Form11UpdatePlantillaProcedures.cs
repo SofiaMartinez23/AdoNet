@@ -66,31 +66,52 @@ namespace AdoNetCore
             await this.cn.CloseAsync();
         }
 
-        private async void btnModificarSalario_Click(object sender, EventArgs e)
+        public async Task LoadPlantilla(string nombre)
         {
-            string nombre = this.cmbHospital.SelectedItem.ToString();
-            int incremento = int .Parse(this.txtIncremento.Text);
-            string sql = "SP_UPDATEPLANTILLA_HOSPITAL";
-            this.com.Parameters.AddWithValue("@NOMBRE", nombre);
-            this.com.Parameters.AddWithValue("@INCREMENTO", incremento);
-
+            string sql = "SP_GETPLANTILLA_HOSPITAL";
+            this.com.Parameters.AddWithValue("@nombre", nombre);
             this.com.CommandType = CommandType.StoredProcedure;
             this.com.CommandText = sql;
-
             await this.cn.OpenAsync();
             this.reader = await this.com.ExecuteReaderAsync();
-
             this.lstPlantilla.Items.Clear();
             while (await this.reader.ReadAsync())
             {
                 string apellido = this.reader["APELLIDO"].ToString();
                 string salario = this.reader["SALARIO"].ToString();
-                this.lstPlantilla.Items.Add(apellido + " " + salario);
+                this.lstPlantilla.Items.Add(apellido + " - " + salario);
             }
-
             await this.reader.CloseAsync();
             await this.cn.CloseAsync();
             this.com.Parameters.Clear();
+        }
+
+
+        private async void btnModificarSalario_Click(object sender, EventArgs e)
+        {
+            string nombre = this.cmbHospital.SelectedItem.ToString();
+            int incremento = int.Parse(this.txtIncremento.Text);
+            string sql = "SP_UPDATEPLANTILLA_HOSPITAL";
+            this.com.Parameters.AddWithValue("@nombre", nombre);
+            this.com.Parameters.AddWithValue("@incremento", incremento);
+            this.com.CommandType = CommandType.StoredProcedure;
+            this.com.CommandText = sql;
+            await this.cn.OpenAsync();
+            int afectados = await this.com.ExecuteNonQueryAsync();
+            await this.cn.CloseAsync();
+            this.com.Parameters.Clear();
+            await this.LoadPlantilla(nombre);
+            MessageBox.Show("Registros modificados " + afectados);
+        }
+
+        private async void cmbHospital_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.cmbHospital.SelectedIndex != -1)
+            {
+                string nombre =
+                this.cmbHospital.SelectedItem.ToString();
+                await this.LoadPlantilla(nombre);
+            }
         }
     }
 }

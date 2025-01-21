@@ -8,7 +8,7 @@ namespace AdoNetCore.Models
 {
     public class EmpleadoDeptInfo
     {
-        public List<string> Empleados { get; set; }
+        public List<string> Apellidos { get; set; }
         public decimal SumaSalarial { get; set; }
         public decimal MediaSalarial { get; set; }
         public int Personas { get; set; }

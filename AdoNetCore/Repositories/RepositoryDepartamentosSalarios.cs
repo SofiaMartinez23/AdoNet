@@ -4,8 +4,10 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AdoNetCore.Helpers;
 using AdoNetCore.Models;
 using Microsoft.Data.SqlClient;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AdoNetCore.Repositories
 {
@@ -18,7 +20,7 @@ namespace AdoNetCore.Repositories
 
         public RepositoryDepartamentosSalarios()
         {
-            string connectionString = @"Data Source=LOCALHOST\SQLEXPRESS01;Initial Catalog=HOSPITAL;Persist Security Info=True;User ID=sa;Encrypt=True;Trust Server Certificate=True";
+            string connectionString = HelperConfiguration.GetConnectionString();
             this.cn = new SqlConnection(connectionString);
             this.com = new SqlCommand();
         }
@@ -47,61 +49,48 @@ namespace AdoNetCore.Repositories
 
         }
 
-        public async Task GetEmpleadosDepa(string depa)
+        public async Task<EmpleadoDeptInfo> GetEmpleadosDepa(string depa)
         {
             string sql = "SP_EMPLEADOS_DEPT_OUT";
             this.com.Parameters.AddWithValue("@nombre", depa);
-
             SqlParameter pamSuma = new SqlParameter();
             pamSuma.ParameterName = "@suma";
             pamSuma.Value = 0;
+            //INDICAMOS LA DIRECCION DEL PARAMETRO 
             pamSuma.Direction = ParameterDirection.Output;
             this.com.Parameters.Add(pamSuma);
-
             SqlParameter pamMedia = new SqlParameter();
             pamMedia.ParameterName = "@media";
             pamMedia.Value = 0;
             pamMedia.Direction = ParameterDirection.Output;
             this.com.Parameters.Add(pamMedia);
-
             SqlParameter pamPersonas = new SqlParameter();
             pamPersonas.ParameterName = "@personas";
             pamPersonas.Value = 0;
             pamPersonas.Direction = ParameterDirection.Output;
             this.com.Parameters.Add(pamPersonas);
-
             this.com.CommandType = CommandType.StoredProcedure;
             this.com.CommandText = sql;
-
             await this.cn.OpenAsync();
             this.reader = await this.com.ExecuteReaderAsync();
-
-            List<string> empleados = new List<string>();
-
+            EmpleadoDeptInfo model = new EmpleadoDeptInfo();
+            List<string> apellidos = new List<string>();
             while (await this.reader.ReadAsync())
             {
                 string apellido = this.reader["APELLIDO"].ToString();
-                empleados.Add(apellido);
+                apellidos.Add(apellido);
             }
-
             await this.reader.CloseAsync();
-
-            decimal sumaSalarial = Convert.ToDecimal(this.com.Parameters["@suma"].Value);
-            decimal mediaSalarial = Convert.ToDecimal(this.com.Parameters["@media"].Value);
-            int cantidadPersonas = Convert.ToInt32(this.com.Parameters["@personas"].Value);
+            //GUARDAMOS LOS DATOS EN  NUESTRO MODEL 
+            model.Apellidos = apellidos;
+            model.SumaSalarial = int.Parse(pamSuma.Value.ToString());
+            model.MediaSalarial = int.Parse(pamMedia.Value.ToString());
+            model.Personas = int.Parse(pamPersonas.Value.ToString());
 
             await this.cn.CloseAsync();
             this.com.Parameters.Clear();
+            return model;
 
-            return new EmpleadoDeptInfo
-            {
-                Empleados = empleados,
-                SumaSalarial = sumaSalarial,
-                MediaSalarial = mediaSalarial,
-                Personas = cantidadPersonas
-            };
         }
-
-
     }
 }
